@@ -24,14 +24,14 @@ app.post("/api/users", (req, res) => {
   user = new User({
     username: username,
   });
-  user.save(function (err) {
+  user.save(function (err, data) {
     if (!err) {
       return console.log("created");
     } else {
       return console.log(err);
     }
   });
-  res.send({ username: username, _id: user._id });
+  res.send(user);
 });
 
 app.get("/api/users", (req, res) => {
