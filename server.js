@@ -80,7 +80,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
       res.json({
         username: result.username,
         description: description,
-        duration: Number(duration),
+        duration: duration,
         _id: userId,
         date: date,
       });
