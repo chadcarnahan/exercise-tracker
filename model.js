@@ -8,8 +8,8 @@ var exerciseSchema = new Schema({
 });
 
 var userSchema = new Schema({
-  id: { type: String, required: true },
   username: { type: String, required: true },
+  log: [],
 });
 
 var Exercise = mongoose.model("Exercise", exerciseSchema);

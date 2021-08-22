@@ -21,9 +21,7 @@ app.get("/", (req, res) => {
 
 app.post("/api/users", (req, res) => {
   let { username } = req.body;
-  let id = uuid();
   user = new User({
-    id: id,
     username: username,
   });
   user.save(function (err) {
@@ -33,7 +31,7 @@ app.post("/api/users", (req, res) => {
       return console.log(err);
     }
   });
-  res.send({ username: username, _id: id });
+  res.send({ username: username, _id: user._id });
 });
 
 app.get("/api/users", (req, res) => {
@@ -52,39 +50,35 @@ app.get("/api/users", (req, res) => {
 app.post("/api/users/:_id/exercises", (req, res) => {
   let userId = req.body[":_id"];
   let { description, duration } = req.body;
-  const options1 = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
-  const formattedDate = new Intl.DateTimeFormat("en-US", options1);
-  let date = formattedDate.format(new Date());
+  const date = req.body.date
+    ? req.body.date.toDateString()
+    : new Date().toDateString();
 
   const checkID = async () => {
-    const temp = await User.find({ id: userId });
-    return temp;
+    const search = await User.findById({ _id: userId });
+    return search;
   };
 
   checkID().then((result) => {
-    console.log(result);
-    if (result.length >= 1) {
-      exercise = new Exercise({
-        userId: userId,
+    if (result) {
+      exercise = {
         description: description,
-        duration: duration, //here I insert the objectId field
-        date: new Date(date),
-      });
+        duration: duration,
+        date: date,
+      };
 
-      exercise.save(function (err) {
-        if (!err) {
-          return console.log("created");
-        } else {
-          return console.log(err);
+      User.updateOne(
+        { _id: userId },
+        { $push: { log: exercise } },
+        { new: true },
+        (err) => {
+          if (err) {
+            return console.log(err);
+          }
         }
-      });
+      );
       res.json({
-        username: result[0].username,
+        username: result.username,
         _id: userId,
         description: description,
         duration: Number(duration),
@@ -100,19 +94,17 @@ app.get("/api/users/:_id/logs", (req, res) => {
   const { _id } = req.params;
   const { from, to, limit } = req.query;
   const userLogs = async () => {
-    let user = await User.find({ id: _id });
-    const logs = limit
-      ? await Exercise.find({ userId: _id }).limit(Number(limit))
-      : await Exercise.find({ userId: _id });
-    Exercise.find({ userId: _id });
+    const user = limit
+      ? await User.find({ _id: _id }).limit(Number(limit))
+      : await User.find({ _id: _id });
 
-    let count = await logs.length;
-    let logArray = await logs.map((log) => {
-      let { description, duration, date } = log;
+    let count = await user[0].log.length;
+    let logArray = await user[0].log.map((item) => {
+      let { description, duration, date } = item;
       return {
         description: description,
         duration: duration,
-        date: new Date(date),
+        date: date,
       };
     });
 
@@ -126,11 +118,11 @@ app.get("/api/users/:_id/logs", (req, res) => {
       let end = new Date(to).getFullYear();
       let filteredLog = result.log.filter((item) => {
         return (
-          item.date.getFullYear() >= start + 1 &&
-          item.date.getFullYear() <= end + 1
+          Number(item.date.split(" ")[3]) >= start + 1 &&
+          Number(item.date.split(" ")[3]) <= end + 1
         );
       });
-
+      count = filteredLog.length;
       res.json({ id, username, count, log: filteredLog });
     } else {
       res.json(result);
