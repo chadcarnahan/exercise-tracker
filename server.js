@@ -52,7 +52,14 @@ app.get("/api/users", (req, res) => {
 app.post("/api/users/:_id/exercises", (req, res) => {
   let userId = req.body[":_id"];
   let { description, duration } = req.body;
-  let date = req.body.date === true ? req.body.date : new Date();
+  const options1 = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  const formattedDate = new Intl.DateTimeFormat("en-US", options1);
+  let date = formattedDate.format(new Date());
 
   const checkID = async () => {
     const temp = await User.find({ id: userId });
@@ -80,7 +87,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
         username: result[0].username,
         _id: userId,
         description: description,
-        duration: duration,
+        duration: Number(duration),
         date: date,
       });
     } else {
@@ -90,15 +97,15 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 });
 
 app.get("/api/users/:_id/logs", (req, res) => {
-  const { id } = req.params;
+  const { _id } = req.params;
   const { from, to, limit } = req.query;
   console.log(from);
   const userLogs = async () => {
-    let user = await User.find({ id: id });
+    let user = await User.find({ id: _id });
     const logs = limit
-      ? await Exercise.find({ userId: id }).limit(Number(limit))
-      : await Exercise.find({ userId: id });
-    Exercise.find({ userId: id });
+      ? await Exercise.find({ userId: _id }).limit(Number(limit))
+      : await Exercise.find({ userId: _id });
+    Exercise.find({ userId: _id });
 
     let count = await logs.length;
     let logArray = await logs.map((log) => {
@@ -110,8 +117,9 @@ app.get("/api/users/:_id/logs", (req, res) => {
       };
     });
 
-    let { username } = user[0];
-    return { id: id, username: username, count: count, log: logArray };
+    let { username } = "f";
+    console.log(user);
+    return { _id: _id, username: username, count: count, log: logArray };
   };
   userLogs().then((result) => {
     let { id, username, count } = result;
