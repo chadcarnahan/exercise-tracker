@@ -40,7 +40,7 @@ app.get("/api/users", (req, res) => {
   const users = async () => {
     const items = await User.find({});
     const usersArray = await items.map((item) => {
-      return { username: item.username, id: item.id };
+      return { username: item.username, _id: item.id };
     });
     return usersArray;
   };
@@ -49,18 +49,19 @@ app.get("/api/users", (req, res) => {
   });
 });
 
-app.post("/api/users/:id/exercises", (req, res) => {
+app.post("/api/users/:_id/exercises", (req, res) => {
   let userId = req.body[":_id"];
   let { description, duration } = req.body;
   let date = req.body.date === true ? req.body.date : new Date();
 
   const checkID = async () => {
     const temp = await User.find({ id: userId });
-    return temp.length;
+    return temp;
   };
 
   checkID().then((result) => {
-    if (result >= 1) {
+    console.log(result);
+    if (result.length >= 1) {
       exercise = new Exercise({
         userId: userId,
         description: description,
@@ -76,7 +77,8 @@ app.post("/api/users/:id/exercises", (req, res) => {
         }
       });
       res.json({
-        id: userId,
+        username: result[0].username,
+        _id: userId,
         description: description,
         duration: duration,
         date: date,
@@ -87,7 +89,7 @@ app.post("/api/users/:id/exercises", (req, res) => {
   });
 });
 
-app.get("/api/users/:id/logs", (req, res) => {
+app.get("/api/users/:_id/logs", (req, res) => {
   const { id } = req.params;
   const { from, to, limit } = req.query;
   console.log(from);
