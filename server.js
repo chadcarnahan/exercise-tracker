@@ -33,7 +33,7 @@ app.post("/api/users", (req, res) => {
       return console.log(err);
     }
   });
-  res.send({ username: username, id: id });
+  res.send({ username: username, _id: id });
 });
 
 app.get("/api/users", (req, res) => {
