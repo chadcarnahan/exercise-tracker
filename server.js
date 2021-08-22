@@ -78,11 +78,11 @@ app.post("/api/users/:_id/exercises", (req, res) => {
         }
       );
       res.json({
-        username: result.username,
         _id: userId,
-        description: description,
-        duration: Number(duration),
+        username: result.username,
         date: date,
+        duration: Number(duration),
+        description: description,
       });
     } else {
       res.json({ error: "ID not valid" });
@@ -114,10 +114,12 @@ app.get("/api/users/:_id/logs", (req, res) => {
   userLogs().then((result) => {
     let { id, username, count } = result;
     if (from && to) {
+      let start = new Date(from).getFullYear();
+      let end = new Date(to).getFullYear();
       let filteredLog = result.log.filter((item) => {
         return (
-          Number(item.date.split(" ")[3]) >= from + 1 &&
-          Number(item.date.split(" ")[3]) <= to + 1
+          Number(item.date.split(" ")[3]) >= start + 1 &&
+          Number(item.date.split(" ")[3]) <= end + 1
         );
       });
       count = filteredLog.length;
