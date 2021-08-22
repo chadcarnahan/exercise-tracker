@@ -114,12 +114,10 @@ app.get("/api/users/:_id/logs", (req, res) => {
   userLogs().then((result) => {
     let { id, username, count } = result;
     if (from && to) {
-      let start = new Date(from).getFullYear();
-      let end = new Date(to).getFullYear();
       let filteredLog = result.log.filter((item) => {
         return (
-          Number(item.date.split(" ")[3]) >= start + 1 &&
-          Number(item.date.split(" ")[3]) <= end + 1
+          Number(item.date.split(" ")[3]) >= from + 1 &&
+          Number(item.date.split(" ")[3]) <= to + 1
         );
       });
       count = filteredLog.length;
