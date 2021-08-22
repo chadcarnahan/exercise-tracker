@@ -78,11 +78,11 @@ app.post("/api/users/:_id/exercises", (req, res) => {
         }
       );
       res.json({
-        _id: userId,
         username: result.username,
-        date: date,
-        duration: Number(duration),
         description: description,
+        duration: Number(duration),
+        _id: userId,
+        date: date,
       });
     } else {
       res.json({ error: "ID not valid" });
