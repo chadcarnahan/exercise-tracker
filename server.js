@@ -99,7 +99,6 @@ app.post("/api/users/:_id/exercises", (req, res) => {
 app.get("/api/users/:_id/logs", (req, res) => {
   const { _id } = req.params;
   const { from, to, limit } = req.query;
-  console.log(from);
   const userLogs = async () => {
     let user = await User.find({ id: _id });
     const logs = limit
@@ -117,8 +116,7 @@ app.get("/api/users/:_id/logs", (req, res) => {
       };
     });
 
-    let { username } = "f";
-    console.log(user);
+    let username = user[0].username;
     return { _id: _id, username: username, count: count, log: logArray };
   };
   userLogs().then((result) => {
