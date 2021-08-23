@@ -24,14 +24,14 @@ app.post("/api/users", (req, res) => {
   user = new User({
     username: username,
   });
-  user.save(function (err, data) {
+  user.save(function (err) {
     if (!err) {
       return console.log("created");
     } else {
       return console.log(err);
     }
   });
-  res.send(user);
+  res.send({ username: username, _id: user._id });
 });
 
 app.get("/api/users", (req, res) => {
@@ -51,7 +51,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   let userId = req.body[":_id"];
   let { description, duration } = req.body;
   const date = req.body.date
-    ? req.body.date.toDateString()
+    ? new Date(req.body.date).toDateString()
     : new Date().toDateString();
 
   const checkID = async () => {
@@ -80,7 +80,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
       res.json({
         username: result.username,
         description: description,
-        duration: duration,
+        duration: Number(duration),
         _id: userId,
         date: date,
       });
